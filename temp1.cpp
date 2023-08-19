@@ -379,8 +379,8 @@ int main() {
             else {
                 throw std::runtime_error("Invalid command.");
             }
-        }
     }
+    
 
     // Clean up memory (delete objects, etc.)
 
