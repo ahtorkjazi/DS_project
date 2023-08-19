@@ -5,6 +5,7 @@
 #include <limits>
 #include <unordered_map>
 #include <sstream>
+#include <exception>
 
 using namespace std ;
 
@@ -267,7 +268,11 @@ int main() {
     unordered_map<string, Galaxy*> galaxiesMap;
 
     string input;
-    while (true) {
+    
+    
+
+    try {
+        while (true) {
         cout << "Enter command: ";
         getline(cin, input);
 
@@ -285,6 +290,7 @@ int main() {
 
         // Process different commands
         if (tokens[0] == "CREATE") {
+
             if (tokens[1] == "(A:" && tokens[2] == "Node," && tokens[3].substr(0, 5) == "{id:'"  ) {
                 string id, type, galaxy;
                 // Extract id, type, galaxy from tokens[3], tokens[4], tokens[6]
@@ -292,6 +298,20 @@ int main() {
                 id = tokens[3].substr(5, tokens[3].size() - 6);
                 type = tokens[4].substr(6, tokens[4].size() - 7);
                 galaxy = tokens[6].substr(9, tokens[6].size() - 8);
+
+                // Check if any node with the same id exists in the same galaxy
+                bool nodeWithSameIdExists = false;
+                for (Node* existingNode : galaxiesMap[galaxy]->nodes) {
+                    if (existingNode->id == id) {
+                        nodeWithSameIdExists = true;
+                        break;
+                    }
+                }
+                
+                if (nodeWithSameIdExists) {
+                    std::cerr << "Error: Node with the same id already exists in the same galaxy." << std::endl;
+                    continue; // Skip processing this command
+                }
 
                 // Create Galaxy if it doesn't exist
                 if (galaxiesMap.find(galaxy) == galaxiesMap.end()) {
@@ -319,6 +339,8 @@ int main() {
                     // Add non-BG node to its galaxy
                     galaxiesMap[galaxy]->addNode(newNode);
                 }
+
+                
             }
             else if (tokens[1] == "(AS" && tokens[3] == ") - [:ROAD" && tokens[4].substr(0, 5) == "{cost:") {
                 std::string startNodeId, endNodeId;
@@ -342,9 +364,6 @@ int main() {
                 Edge* newEdge = new Edge(startNode, endNode, cost);
                 galaxiesMap[startNode->galaxy]->addEdge(newEdge);
             }
-
-
-
 
         }
         else if (tokens[0] == "FIND") {
@@ -379,11 +398,39 @@ int main() {
             else {
                 throw std::runtime_error("Invalid command.");
             }
+            
+        }
+
+    }   catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        }
+
+
+
+    // Check if every galaxy has at least one BG node
+    for (const auto& entry : galaxiesMap) {
+        const Galaxy* galaxy = entry.second;
+        bool hasBGNode = false;
+        for (const Node* node : galaxy->nodes) {
+            if (node->type == "BG") {
+                hasBGNode = true;
+                break;
+            }
+        }
+        if (!hasBGNode) {
+            std::cerr << "Error: Galaxy " << galaxy->name << " doesn't have a BG node." << std::endl;
+        }
     }
-    
 
+
+ 
     // Clean up memory (delete objects, etc.)
-
+    for (const auto& pair : nodesMap) {
+        delete pair.second;
+    }
+    for (const auto& pair : galaxiesMap) {
+        delete pair.second;
+    }
     return 0;
 }
 
