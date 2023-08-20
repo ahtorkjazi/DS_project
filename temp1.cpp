@@ -309,7 +309,7 @@ int main() {
                 }
                 
                 if (nodeWithSameIdExists) {
-                    std::cerr << "Error: Node with the same id already exists in the same galaxy." << std::endl;
+                    cerr << "Error: Node with the same id already exists in the same galaxy." << endl;
                     continue; // Skip processing this command
                 }
 
@@ -343,15 +343,15 @@ int main() {
                 
             }
             else if (tokens[1] == "(AS" && tokens[3] == ") - [:ROAD" && tokens[4].substr(0, 5) == "{cost:") {
-                std::string startNodeId, endNodeId;
+                string startNodeId, endNodeId;
                 int cost;
                 // Extract startNodeId, endNodeId, and cost from tokens[1], tokens[5], tokens[4]
                 startNodeId = tokens[1].substr(2);
                 endNodeId = tokens[5].substr(0, tokens[5].size() - 1);
-                cost = std::stoi(tokens[4].substr(7, tokens[4].size() - 8));
+                cost = stoi(tokens[4].substr(7, tokens[4].size() - 8));
 
                 if (cost <= 0) {
-                    std::cerr << "Invalid edge cost " << std::endl;
+                    cerr << "Invalid edge cost " << endl;
                     break;
                 }
 
@@ -368,7 +368,7 @@ int main() {
         }
         else if (tokens[0] == "FIND") {
                 if (tokens.size() >= 3 && tokens[1].substr(0, 2) == "AS" && tokens[2].substr(0, 2) == "AS") {
-                        std::string sourceNodeId, targetNodeId;
+                        string sourceNodeId, targetNodeId;
                         sourceNodeId = tokens[1];
                         targetNodeId = tokens[2];
 
@@ -377,32 +377,32 @@ int main() {
                         Node* targetNode = nodesMap[targetNodeId];
 
                         if (!sourceNode || !targetNode) {
-                            throw std::runtime_error("Source or target node not found.");
+                            throw runtime_error("Source or target node not found.");
                         }
 
                         // Use generatedRoutingTables to find the shortest path and print it
                         RoutingTable routingTable = generateRoutingTables(universe);
-                        std::stack<Node*> path = findPathAcrossGalaxies(routingTable, sourceNode, targetNode, universe);
+                        stack<Node*> path = findPathAcrossGalaxies(routingTable, sourceNode, targetNode, universe);
 
                         if (path.empty()) {
-                            throw std::runtime_error("No path found between source and target nodes.");
+                            throw runtime_error("No path found between source and target nodes.");
                         }
 
                         printPath(path, *galaxiesMap[sourceNode->galaxy], *galaxiesMap[targetNode->galaxy]);
 
                 }
                 else {
-                    throw std::runtime_error("Invalid FIND command format.");
+                    throw runtime_error("Invalid FIND command format.");
                 }
             }
             else {
-                throw std::runtime_error("Invalid command.");
+                throw runtime_error("Invalid command.");
             }
             
         }
 
-    }   catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    }   catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
         }
 
 
@@ -418,7 +418,7 @@ int main() {
             }
         }
         if (!hasBGNode) {
-            std::cerr << "Error: Galaxy " << galaxy->name << " doesn't have a BG node." << std::endl;
+            cerr << "Error: Galaxy " << galaxy->name << " doesn't have a BG node." << endl;
         }
     }
 
@@ -435,75 +435,3 @@ int main() {
 }
 
 
-/*
-int main() {
-    Universe universe;
-
-    Node* AS1_A = new Node("AS1.A", "NON-BG","AS1");
-    Node* AS1_B = new Node("AS1.B", "BG","AS1") ;
-    Node* AS1_C = new Node("AS1.C", "NON-BG","AS1") ;
-    Node* AS1_D = new Node("AS1.D", "BG", "AS1");
-    Node* AS2_A = new Node("AS2.A", "BG", "AS2");
-    Node* AS2_B = new Node("AS2.B", "NON-BG", "AS2");
-    Node* AS2_C = new Node("AS2.C", "BG", "AS2");
-    Node* AS2_D = new Node("AS2.D", "NON-BG","AS2");
-
-    vector<Edge*> edges = {
-        new Edge(AS1_A, AS1_B, 20),
-        new Edge(AS1_A, AS1_C, 10),
-        new Edge(AS1_B, AS1_D, 5),
-        new Edge(AS1_C, AS1_D, 30),
-        new Edge(AS1_B, AS2_A, 10),
-        new Edge(AS1_D, AS2_C, 30),
-        new Edge(AS2_A, AS2_B, 5),
-        new Edge(AS2_A, AS2_C, 10),
-        new Edge(AS2_B, AS2_D, 4),
-        new Edge(AS2_C, AS2_D, 20)
-    };
-
-    Galaxy* galaxyAS1 = new Galaxy("AS1");
-    galaxyAS1->addNode(AS1_A);
-    galaxyAS1->addNode(AS1_B);
-    galaxyAS1->addNode(AS1_C);
-    galaxyAS1->addNode(AS1_D);
-    galaxyAS1->addEdge(edges[0]);
-    galaxyAS1->addEdge(edges[1]);
-    galaxyAS1->addEdge(edges[2]);
-    galaxyAS1->addEdge(edges[3]);
-
-    Galaxy* galaxyAS2 = new Galaxy("AS2");
-    galaxyAS2->addNode(AS2_A);
-    galaxyAS2->addNode(AS2_B);
-    galaxyAS2->addNode(AS2_C);
-    galaxyAS2->addNode(AS2_D);
-    galaxyAS2->addEdge(edges[4]);
-    galaxyAS2->addEdge(edges[5]);
-    galaxyAS2->addEdge(edges[6]);
-    galaxyAS2->addEdge(edges[7]);
-    galaxyAS2->addEdge(edges[8]);
-    galaxyAS2->addEdge(edges[9]);
-
-    universe.addGalaxy(galaxyAS1);
-    universe.addGalaxy(galaxyAS2);
-
-
-
-///////////////////////////////
-
-    RoutingTable routingTable = generateRoutingTables(universe);
-
-
-
-    Node* sourceNode = AS1_A;
-    Node* targetNode = AS2_C;
-    stack<Node*> path2 = findPathAcrossGalaxies(routingTable, sourceNode, targetNode, universe );
-    printPath(path2, *galaxyAS1, *galaxyAS2);
-
-    
- 
-
-    
-
-    return 0;
-}
-*/
